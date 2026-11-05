@@ -9,7 +9,7 @@ This is the **testing prototype**: enough to put in front of people with synesth
 - **Mixed reality stage.** "Show in my room" opens effects in your space, with your room still visible.
 - **Music.** Two built-in test pieces (a note-by-note scale and a simple *Ode to Joy*), plus import of your own audio files.
 - **Live audio analysis.** Volume, bass / middle / treble, the strongest note (C to B) and beats, measured as the music plays.
-- **Three effects.** Floating orbs (each tied to a note), a flowing ribbon (rises with higher sounds), and bursts on the beat.
+- **Three effects.** Floating orbs (each tied to a note), flowing light (glowing strands that braid like water, one colour per strong note, rising with higher sounds), and bursts on the beat.
 - **Note colours.** Choose a colour for each of the 12 notes, with a live readout of which note is sounding.
 - **Effect controls.** Type, placement (in front, all around, above), colour, opacity, size, speed, what it reacts to, sensitivity.
 - **Presets.** Save, reopen and share (as a small JSON file) the full setup, including the music.

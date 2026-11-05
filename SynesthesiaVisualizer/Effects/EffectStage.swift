@@ -19,6 +19,9 @@ struct LayerContext {
         }
     }
 
+    /// Roughly where the viewer's head is, in the layer's own coordinates.
+    var viewer: SIMD3<Float> { SIMD3<Float>(0, 1.5, 0) - layer.placement.anchor }
+
     /// The colour of the note sounding most strongly right now.
     var currentColor: UIColor { color(forPitchClass: features.dominantPitchClass) }
 }

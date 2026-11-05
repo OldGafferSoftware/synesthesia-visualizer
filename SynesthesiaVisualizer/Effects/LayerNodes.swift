@@ -50,56 +50,6 @@ final class OrbsNode: LayerNode {
     }
 }
 
-/// A trail of light that rises with brighter, higher sounds and takes the colour of the note playing.
-@MainActor
-final class RibbonNode: LayerNode {
-    let entity = Entity()
-    let kind = EffectKind.ribbon
-
-    private var beads: [ModelEntity] = []
-    private var trail: [SIMD3<Float>]
-    private var colors: [UIColor]
-    private var phase: Float = 0
-
-    init(length: Int = 70) {
-        let mesh = MeshResource.generateSphere(radius: 0.03)
-        trail = Array(repeating: .zero, count: length)
-        colors = Array(repeating: .white, count: length)
-        for _ in 0..<length {
-            let bead = ModelEntity(mesh: mesh, materials: [UnlitMaterial(color: .white)])
-            entity.addChild(bead)
-            beads.append(bead)
-        }
-    }
-
-    func update(_ c: LayerContext) {
-        phase += c.deltaTime * Float(c.layer.speed)
-        let height = (c.features.brightness - 0.5) * 0.8
-
-        let head: SIMD3<Float>
-        switch c.layer.placement {
-        case .surround:
-            let angle = phase * 0.6
-            head = [cos(angle) * 1.5, height + 0.15 * sin(phase * 2.3), sin(angle) * 1.5]
-        case .front, .above:
-            head = [0.7 * sin(phase * 0.8), height + 0.1 * sin(phase * 2.1), 0.25 * sin(phase * 0.5)]
-        }
-
-        trail.removeLast()
-        trail.insert(head, at: 0)
-        colors.removeLast()
-        colors.insert(c.currentColor, at: 0)
-
-        let drive = c.drive
-        for (i, bead) in beads.enumerated() {
-            let taper = 1 - Float(i) / Float(beads.count)
-            bead.position = trail[i]
-            bead.scale = SIMD3(repeating: Float(c.layer.size) * (0.4 + 1.2 * drive) * (0.2 + 0.8 * taper))
-            bead.model?.materials = [glowMaterial(colors[i], opacity: Float(c.layer.opacity) * taper)]
-        }
-    }
-}
-
 /// Sparks that burst outward on each beat, in the colour of the note playing.
 @MainActor
 final class BurstsNode: LayerNode {
