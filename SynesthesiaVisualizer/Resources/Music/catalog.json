@@ -1,0 +1,18 @@
+[
+  {
+    "file": "test-twelve-notes.m4a",
+    "title": "The twelve notes",
+    "composer": "Test piece",
+    "performer": "Synthesized for this app",
+    "licence": "Made for this app; free to use",
+    "source": "Tools/make_test_music.py"
+  },
+  {
+    "file": "ode-to-joy-synth.m4a",
+    "title": "Ode to Joy (simple version)",
+    "composer": "Beethoven",
+    "performer": "Synthesized for this app",
+    "licence": "Composition in the public domain; this performance made for this app",
+    "source": "Tools/make_test_music.py"
+  }
+]
