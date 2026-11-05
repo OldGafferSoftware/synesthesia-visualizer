@@ -72,8 +72,8 @@ struct NoteColoursPane: View {
                         Circle()
                             .fill(model.preset.noteColors[pitchClass].color)
                             .frame(width: 44, height: 44)
-                            .opacity(model.audio.isPlaying ? 1 : 0.3)
-                        Text(model.audio.isPlaying ? "Strongest note now: \(Preset.noteNames[pitchClass])" : "Play a piece to see which note is sounding")
+                            .opacity(model.audio.isPlaying || model.audio.heldNote != nil ? 1 : 0.3)
+                        Text(model.audio.isPlaying || model.audio.heldNote != nil ? "Strongest note now: \(Preset.noteNames[pitchClass])" : "Play a piece to see which note is sounding")
                             .font(.title3)
                     }
                 }
@@ -82,18 +82,16 @@ struct NoteColoursPane: View {
             }
 
             Section {
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 24), count: 4), spacing: 20) {
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 24), count: 3), spacing: 20) {
                     ForEach(0..<12, id: \.self) { index in
-                        ColorPicker(selection: colorBinding(index)) {
-                            Text(Preset.noteNames[index]).font(.title3.bold())
-                        }
+                        NoteSwatch(index: index)
                     }
                 }
                 .padding(.vertical, 8)
             } header: {
                 Text("What colour is each note for you?")
             } footer: {
-                Text("Effects set to “Colour of the notes” use these.")
+                Text("Tap a note to hear it held. While it plays, choose its colour, then tap again to stop. Turn on “Show in my room” to see the colour in your space as you choose.")
             }
 
             Section("Start from") {
@@ -102,9 +100,44 @@ struct NoteColoursPane: View {
             }
         }
         .navigationTitle("Note colours")
+        .onDisappear { model.audio.stopNote() }
+    }
+}
+
+/// One note: a play/stop button that holds the note, and its colour well.
+struct NoteSwatch: View {
+    @Environment(AppModel.self) private var model
+    let index: Int
+
+    private var isHeld: Bool { model.audio.heldNote == index }
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Button {
+                if isHeld { model.audio.stopNote() } else { model.audio.startNote(index) }
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: isHeld ? "stop.fill" : "play.fill")
+                        .contentTransition(.symbolEffect(.replace))
+                    Text(Preset.noteNames[index])
+                        .font(.title3.bold())
+                        .frame(minWidth: 36, alignment: .leading)
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(
+                    Capsule().fill(model.preset.noteColors[index].color.opacity(isHeld ? 0.55 : 0.18))
+                )
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(isHeld ? "Stop \(Preset.noteNames[index])" : "Play \(Preset.noteNames[index])")
+
+            ColorPicker("Colour for \(Preset.noteNames[index])", selection: colorBinding)
+                .labelsHidden()
+        }
     }
 
-    private func colorBinding(_ index: Int) -> Binding<Color> {
+    private var colorBinding: Binding<Color> {
         Binding(
             get: { model.preset.noteColors[index].color },
             set: { model.preset.noteColors[index] = RGBA($0) }
