@@ -29,6 +29,8 @@ struct ContentView: View {
     @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     @State private var pane: Pane? = .music
+    @State private var showSplash = true
+    @State private var showInfo = false
 
     var body: some View {
         NavigationSplitView {
@@ -36,6 +38,15 @@ struct ContentView: View {
                 Label(pane.title, systemImage: pane.systemImage).tag(pane)
             }
             .navigationTitle("Synesthesia")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("About this app", systemImage: "info.circle") { showInfo = true }
+                }
+            }
+            .sheet(isPresented: $showInfo) {
+                AboutView(mode: .info) { showInfo = false }
+                    .frame(minWidth: 760, minHeight: 640)
+            }
         } detail: {
             NavigationStack {
                 switch pane ?? .music {
@@ -45,6 +56,11 @@ struct ContentView: View {
                 case .presets: PresetsPane()
                 }
             }
+        }
+        .sheet(isPresented: $showSplash) {
+            AboutView(mode: .splash) { showSplash = false }
+                .frame(minWidth: 760, minHeight: 640)
+                .interactiveDismissDisabled()
         }
         .toolbar {
             ToolbarItemGroup(placement: .bottomOrnament) {

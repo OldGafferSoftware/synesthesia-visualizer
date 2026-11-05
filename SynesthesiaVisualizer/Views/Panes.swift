@@ -186,6 +186,20 @@ struct LayersPane: View {
     }
 }
 
+/// Shows the tempo the app is currently hearing.
+struct TempoReadout: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        TimelineView(.periodic(from: .now, by: 0.5)) { _ in
+            LabeledContent("Tempo now") {
+                Text(model.audio.isPlaying ? "about \(Int(model.audio.features.tempo.rounded())) beats a minute" : "play some music")
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+}
+
 struct LayerEditor: View {
     @Binding var layer: EffectLayer
 
@@ -220,11 +234,21 @@ struct LayerEditor: View {
                 slider("Speed", value: $layer.speed, in: 0...3)
             }
 
-            Section("Reacts to") {
+            Section {
                 Picker("Sound", selection: $layer.reaction) {
                     ForEach(Reaction.allCases) { Text($0.label).tag($0) }
                 }
                 slider("Sensitivity", value: $layer.sensitivity, in: 0...2)
+                Toggle("Speed follows the music's tempo", isOn: $layer.followsTempo)
+                if layer.followsTempo {
+                    TempoReadout()
+                }
+            } header: {
+                Text("Reacts to")
+            } footer: {
+                Text(layer.followsTempo
+                     ? "Movement speeds up with faster music and slows with slower music. The Speed slider sets how fast it is overall."
+                     : "Movement stays at the Speed slider's setting, whatever the music's tempo.")
             }
         }
         .navigationTitle(layer.name)

@@ -42,7 +42,7 @@ final class RibbonNode: LayerNode {
     }
 
     func update(_ c: LayerContext) {
-        let speed = Float(c.layer.speed)
+        let speed = c.speed
         let size = Float(c.layer.size)
         let drive = min(1.5, c.drive)
 

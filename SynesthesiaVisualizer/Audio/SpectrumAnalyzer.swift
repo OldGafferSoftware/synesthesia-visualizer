@@ -15,6 +15,11 @@ struct AudioFeatures: Sendable {
     var dominantPitchClass = 0
     /// Goes up by one on every detected beat or strong onset.
     var beatCount = 0
+    /// Estimated tempo in beats per minute (starts at 100 and settles within a few seconds).
+    var tempo: Float = 100
+
+    /// Tempo relative to a moderate 100 BPM, kept within 0.5...2.
+    var tempoFactor: Float { min(2, max(0.5, tempo / 100)) }
 
     func value(for reaction: Reaction) -> Float {
         switch reaction {
@@ -37,6 +42,17 @@ final class SpectrumAnalyzer: @unchecked Sendable {
     private var previousMagnitudes: [Float]
     private var fluxAverage: Float = 0
     private var framesSinceBeat = 0
+
+    // Tempo tracking: a finer-grained "onset strength" signal, checked for repeating patterns.
+    private let tempoFFTSize = 2048
+    private let tempoHop = 1024
+    private let tempoFFT: vDSP.FFT<DSPSplitComplex>
+    private let tempoWindow: [Float]
+    private var tempoSamples: [Float] = []
+    private var previousLogMagnitudes: [Float]
+    private var onsetEnvelope: [Float] = []
+    private var hopsSinceTempo = 0
+    private static let onsetHistory = 280
     /// Slowly-decaying peaks, so loud and quiet pieces both use the full 0...1 range.
     private var peaks: [Float] = [1e-3, 1e-3, 1e-3, 1e-3]
     private var current = AudioFeatures()
@@ -47,6 +63,9 @@ final class SpectrumAnalyzer: @unchecked Sendable {
         fft = vDSP.FFT(log2n: log2n, radix: .radix2, ofType: DSPSplitComplex.self)!
         window = vDSP.window(ofType: Float.self, usingSequence: .hanningDenormalized, count: fftSize, isHalfWindow: false)
         previousMagnitudes = [Float](repeating: 0, count: fftSize / 2)
+        tempoFFT = vDSP.FFT(log2n: vDSP_Length(log2(Double(tempoFFTSize))), radix: .radix2, ofType: DSPSplitComplex.self)!
+        tempoWindow = vDSP.window(ofType: Float.self, usingSequence: .hanningDenormalized, count: tempoFFTSize, isHalfWindow: false)
+        previousLogMagnitudes = [Float](repeating: 0, count: tempoFFTSize / 2)
     }
 
     func snapshot() -> AudioFeatures {
@@ -59,25 +78,14 @@ final class SpectrumAnalyzer: @unchecked Sendable {
         let beats = current.beatCount
         current = AudioFeatures()
         current.beatCount = beats
+        onsetEnvelope.removeAll()
+        tempoSamples.removeAll()
     }
 
-    func process(_ buffer: AVAudioPCMBuffer) {
-        guard let channel = buffer.floatChannelData?[0] else { return }
-        let available = Int(buffer.frameLength)
-        guard available > 0 else { return }
-
-        let count = min(available, fftSize)
-        let start = available - count
-        var samples = [Float](repeating: 0, count: fftSize)
-        for i in 0..<count { samples[i] = channel[start + i] }
-
-        var sumOfSquares: Float = 0
-        for i in 0..<count { sumOfSquares += samples[i] * samples[i] }
-        let rms = sqrt(sumOfSquares / Float(count))
-
-        samples = vDSP.multiply(samples, window)
-
-        let half = fftSize / 2
+    /// Magnitude spectrum of one windowed frame.
+    private static func spectrum(_ frame: [Float], fft: vDSP.FFT<DSPSplitComplex>, window: [Float]) -> [Float] {
+        let samples = vDSP.multiply(frame, window)
+        let half = frame.count / 2
         var real = [Float](repeating: 0, count: half)
         var imag = [Float](repeating: 0, count: half)
         var magnitudes = [Float](repeating: 0, count: half)
@@ -95,6 +103,86 @@ final class SpectrumAnalyzer: @unchecked Sendable {
             }
         }
         magnitudes[0] = 0
+        return magnitudes
+    }
+
+    /// Builds the onset-strength signal in steps of `tempoHop` samples. Call with the lock held.
+    private func trackTempo(_ channel: UnsafePointer<Float>, count: Int, sampleRate: Float) {
+        tempoSamples.append(contentsOf: UnsafeBufferPointer(start: channel, count: count))
+        while tempoSamples.count >= tempoFFTSize {
+            let frame = Array(tempoSamples[0..<tempoFFTSize])
+            tempoSamples.removeFirst(tempoHop)
+            let magnitudes = Self.spectrum(frame, fft: tempoFFT, window: tempoWindow)
+            var flux: Float = 0
+            for i in 1..<magnitudes.count {
+                let level = log1p(10 * magnitudes[i])
+                let rise = level - previousLogMagnitudes[i]
+                if rise > 0 { flux += rise }
+                previousLogMagnitudes[i] = level
+            }
+            onsetEnvelope.append(flux)
+            if onsetEnvelope.count > Self.onsetHistory {
+                onsetEnvelope.removeFirst(onsetEnvelope.count - Self.onsetHistory)
+            }
+            hopsSinceTempo += 1
+            if hopsSinceTempo >= 5, onsetEnvelope.count > 100 {
+                hopsSinceTempo = 0
+                estimateTempo(hopSeconds: Float(tempoHop) / sampleRate)
+            }
+        }
+    }
+
+    /// Finds the beat period that best matches how the onsets repeat (autocorrelation), preferring
+    /// tempos near the current estimate so it follows the music smoothly rather than jumping
+    /// between half and double speed.
+    private func estimateTempo(hopSeconds: Float) {
+        let n = onsetEnvelope.count
+        let mean = onsetEnvelope.reduce(0, +) / Float(n)
+        let e = onsetEnvelope.map { $0 - mean }
+
+        func correlation(_ lag: Int) -> Float {
+            guard lag < n else { return 0 }
+            var sum: Float = 0
+            for i in 0..<(n - lag) { sum += e[i] * e[i + lag] }
+            return sum / Float(n - lag)
+        }
+
+        let previous = current.tempo
+        var bestScore = -Float.greatestFiniteMagnitude
+        var bestTempo = previous
+        for bpm in stride(from: 50, through: 220, by: 2) {
+            let lag = 60 / Float(bpm) / hopSeconds
+            let whole = Int(lag)
+            let fraction = lag - Float(whole)
+            guard whole + 1 < n else { continue }
+            var score = correlation(whole) * (1 - fraction) + correlation(whole + 1) * fraction
+            let fromModerate = log2(Float(bpm) / 100)
+            let fromPrevious = log2(Float(bpm) / previous) / 0.25
+            score *= exp(-0.5 * fromModerate * fromModerate) * exp(-0.5 * fromPrevious * fromPrevious)
+            if score > bestScore {
+                bestScore = score
+                bestTempo = Float(bpm)
+            }
+        }
+        current.tempo = current.tempo * 0.8 + bestTempo * 0.2
+    }
+
+    func process(_ buffer: AVAudioPCMBuffer) {
+        guard let channel = buffer.floatChannelData?[0] else { return }
+        let available = Int(buffer.frameLength)
+        guard available > 0 else { return }
+
+        let count = min(available, fftSize)
+        let start = available - count
+        var samples = [Float](repeating: 0, count: fftSize)  // zero-padded if the buffer is short
+        for i in 0..<count { samples[i] = channel[start + i] }
+
+        var sumOfSquares: Float = 0
+        for i in 0..<count { sumOfSquares += samples[i] * samples[i] }
+        let rms = sqrt(sumOfSquares / Float(count))
+
+        let half = fftSize / 2
+        let magnitudes = Self.spectrum(samples, fft: fft, window: window)
 
         let sampleRate = Float(buffer.format.sampleRate)
         let binHz = sampleRate / Float(fftSize)
@@ -143,6 +231,8 @@ final class SpectrumAnalyzer: @unchecked Sendable {
         previousMagnitudes = magnitudes
 
         lock.lock(); defer { lock.unlock() }
+
+        trackTempo(channel, count: available, sampleRate: sampleRate)
 
         func normalize(_ value: Float, _ index: Int) -> Float {
             peaks[index] = max(value, peaks[index] * 0.997)

@@ -7,11 +7,12 @@ This is the **testing prototype**: enough to put in front of people with synesth
 ## What's in the prototype
 
 - **Mixed reality stage.** "Show in my room" opens effects in your space, with your room still visible.
-- **Music.** Two built-in test pieces (a note-by-note scale and a simple *Ode to Joy*), plus import of your own audio files.
-- **Live audio analysis.** Volume, bass / middle / treble, the strongest note (C to B) and beats, measured as the music plays.
+- **Music.** Four built-in pieces: Grieg's *In the Hall of the Mountain King* (speeds up from slow to very fast) and Pachelbel's *Canon in D* (slow strings, harp and flute), both played by a synthesized ensemble, plus a note-by-note scale and a simple *Ode to Joy*. You can also import your own audio files.
+- **Live audio analysis.** Volume, bass / middle / treble, the strongest note (C to B), beats and tempo, measured as the music plays.
 - **Three effects.** Floating orbs (each tied to a note), flowing light (glowing strands that braid like water, one colour per strong note, rising with higher sounds), and bursts on the beat.
 - **Note colours.** Choose a colour for each of the 12 notes, with a live readout of which note is sounding.
-- **Effect controls.** Type, placement (in front, all around, above), colour, opacity, size, speed, what it reacts to, sensitivity.
+- **Effect controls.** Type, placement (in front, all around, above), colour, opacity, size, speed, whether speed follows the music's tempo, what it reacts to, sensitivity.
+- **Splash and Info.** A launch page with copyright, a not-medical-advice notice and a flashing-lights warning; the Info button shows it again with a contact email.
 - **Presets.** Save, reopen and share (as a small JSON file) the full setup, including the music.
 - **Recording.** In-app steps for Vision Pro's built-in Record My View.
 
@@ -25,7 +26,9 @@ Needs a Mac with **Xcode 16 or later** (with the visionOS SDK installed).
 
 The simulator is fine for the windows and effects. Passthrough of a real room and realistic audio need the headset.
 
-To regenerate the test music: `python3 Tools/make_test_music.py` (needs numpy and ffmpeg).
+To regenerate the built-in music: `python3 Tools/make_test_music.py` and `python3 Tools/make_ensemble_music.py` (need numpy and ffmpeg).
+
+The app icon (three layers) and logo are in `SynesthesiaVisualizer/Assets.xcassets`; their SVG sources and a renderer are in `Design/`.
 
 ## Getting it to testers (TestFlight)
 

@@ -1,11 +1,19 @@
 [
   {
-    "file": "test-twelve-notes.m4a",
-    "title": "The twelve notes",
-    "composer": "Test piece",
-    "performer": "Synthesized for this app",
-    "licence": "Made for this app; free to use",
-    "source": "Tools/make_test_music.py"
+    "file": "grieg-mountain-king.m4a",
+    "title": "In the Hall of the Mountain King",
+    "composer": "Grieg",
+    "performer": "Synthesized ensemble: bassoon, strings, brass, flute, timpani",
+    "licence": "Composition in the public domain (1875); this performance made for this app",
+    "source": "Tools/make_ensemble_music.py"
+  },
+  {
+    "file": "pachelbel-canon.m4a",
+    "title": "Canon in D",
+    "composer": "Pachelbel",
+    "performer": "Synthesized ensemble: strings, harp, flute",
+    "licence": "Composition in the public domain (c. 1700); this performance made for this app",
+    "source": "Tools/make_ensemble_music.py"
   },
   {
     "file": "ode-to-joy-synth.m4a",
@@ -13,6 +21,14 @@
     "composer": "Beethoven",
     "performer": "Synthesized for this app",
     "licence": "Composition in the public domain; this performance made for this app",
+    "source": "Tools/make_test_music.py"
+  },
+  {
+    "file": "test-twelve-notes.m4a",
+    "title": "The twelve notes",
+    "composer": "Test piece",
+    "performer": "Synthesized for this app",
+    "licence": "Made for this app; free to use",
     "source": "Tools/make_test_music.py"
   }
 ]

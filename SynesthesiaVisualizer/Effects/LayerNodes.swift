@@ -48,7 +48,7 @@ final class OrbsNode: LayerNode {
     }
 
     func update(_ c: LayerContext) {
-        let t = c.time * Float(c.layer.speed)
+        let t = c.time * c.speed
         let size = Float(c.layer.size)
         let drive = c.drive
 
@@ -174,7 +174,7 @@ final class BurstsNode: LayerNode {
         if var emitter = emitterEntity.components[ParticleEmitterComponent.self] {
             emitter.mainEmitter.color = .evolving(start: .single(.white), end: .single(color))
             emitter.burstCount = Int(80 + 320 * strength)
-            emitter.speed = (0.5 + 0.7 * Float(c.layer.speed)) * (0.7 + 0.5 * strength)
+            emitter.speed = (0.5 + 0.7 * c.speed) * (0.7 + 0.5 * strength)
             emitter.mainEmitter.size = 0.012 * size
             emitter.burst()
             emitterEntity.components.set(emitter)

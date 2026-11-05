@@ -119,11 +119,37 @@ struct EffectLayer: Codable, Identifiable, Hashable {
     var singleColor = RGBA(hue: 0.6)
     var size: Double = 1
     var speed: Double = 1
+    /// When on, movement speeds up and slows down with the music's tempo.
+    var followsTempo = true
     var reaction: Reaction = .volume
     var sensitivity: Double = 1
     var placement: Placement = .front
     var opacity: Double = 0.85
     var isVisible = true
+
+    init(name: String, kind: EffectKind, reaction: Reaction = .volume) {
+        self.name = name
+        self.kind = kind
+        self.reaction = reaction
+    }
+
+    // Decoding fills in defaults for anything missing, so presets saved by older versions still open.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
+        name = try c.decodeIfPresent(String.self, forKey: .name) ?? "Effect"
+        kind = try c.decodeIfPresent(EffectKind.self, forKey: .kind) ?? .orbs
+        colorSource = try c.decodeIfPresent(ColorSource.self, forKey: .colorSource) ?? .notes
+        singleColor = try c.decodeIfPresent(RGBA.self, forKey: .singleColor) ?? RGBA(hue: 0.6)
+        size = try c.decodeIfPresent(Double.self, forKey: .size) ?? 1
+        speed = try c.decodeIfPresent(Double.self, forKey: .speed) ?? 1
+        followsTempo = try c.decodeIfPresent(Bool.self, forKey: .followsTempo) ?? true
+        reaction = try c.decodeIfPresent(Reaction.self, forKey: .reaction) ?? .volume
+        sensitivity = try c.decodeIfPresent(Double.self, forKey: .sensitivity) ?? 1
+        placement = try c.decodeIfPresent(Placement.self, forKey: .placement) ?? .front
+        opacity = try c.decodeIfPresent(Double.self, forKey: .opacity) ?? 0.85
+        isVisible = try c.decodeIfPresent(Bool.self, forKey: .isVisible) ?? true
+    }
 }
 
 /// Everything needed to recreate one person's experience of one piece of music.

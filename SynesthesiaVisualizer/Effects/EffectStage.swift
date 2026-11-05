@@ -9,6 +9,9 @@ struct LayerContext {
     let layer: EffectLayer
     let noteColors: [RGBA]
 
+    /// Movement speed: the layer's own setting, scaled by the music's tempo if the layer follows it.
+    var speed: Float { Float(layer.speed) * (layer.followsTempo ? features.tempoFactor : 1) }
+
     /// How strongly the layer should react right now (0...~2).
     var drive: Float { features.value(for: layer.reaction) * Float(layer.sensitivity) }
 

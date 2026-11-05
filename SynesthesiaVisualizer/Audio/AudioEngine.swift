@@ -27,6 +27,7 @@ final class AudioEngine {
         engine.attach(synthNode)
         engine.connect(synthNode, to: engine.mainMixerNode, format: synthNode.outputFormat(forBus: 0))
         Self.installAnalysisTap(on: engine.mainMixerNode, analyzer: analyzer)
+        Self.activateAudioSession()
     }
 
     /// Kept nonisolated so the render block runs freely on the audio thread.
@@ -65,11 +66,17 @@ final class AudioEngine {
         }
     }
 
+    /// Sets up the audio session once, off the main thread, because activating it can block briefly.
+    nonisolated private static func activateAudioSession() {
+        Task.detached(priority: .userInitiated) {
+            let session = AVAudioSession.sharedInstance()
+            try? session.setCategory(.playback, mode: .default)
+            try? session.setActive(true)
+        }
+    }
+
     private func startEngine() -> Bool {
         do {
-            let session = AVAudioSession.sharedInstance()
-            try session.setCategory(.playback, mode: .default)
-            try session.setActive(true)
             if !engine.isRunning { try engine.start() }
             return true
         } catch {
