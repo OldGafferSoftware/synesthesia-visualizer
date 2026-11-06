@@ -7,7 +7,7 @@ This is the **testing prototype**: enough to put in front of people with synesth
 ## What's in the prototype
 
 - **Mixed reality stage.** "Show in my room" opens effects in your space, with your room still visible.
-- **Music.** Four built-in pieces: Grieg's *In the Hall of the Mountain King* (speeds up from slow to very fast) and Pachelbel's *Canon in D* (cello, harp and three violins in canon, rendered with sampled instruments), plus a note-by-note scale and a simple *Ode to Joy*. You can also import your own audio files.
+- **Music.** Four built-in pieces played with sampled orchestral instruments: Grieg's *In the Hall of the Mountain King* (speeds up from slow to very fast), Pachelbel's *Canon in D*, Beethoven's *Ode to Joy*, and a note-by-note scale on flute for checking colours. You can also import your own audio files.
 - **Live audio analysis.** Volume, bass / middle / treble, the strongest note (C to B), beats and tempo, measured as the music plays.
 - **Four effects.** Floating orbs (each tied to a note), flowing light (glowing strands that braid like water, one colour per strong note, rising with higher sounds), light-explosion bursts on the beat, and an aurora (shimmering curtains of northern lights).
 - **Note colours.** Choose a colour for each of the 12 notes, with a live readout of which note is sounding.
@@ -26,7 +26,7 @@ Needs a Mac with **Xcode 16 or later** (with the visionOS SDK installed).
 
 The simulator is fine for the windows and effects. Passthrough of a real room and realistic audio need the headset.
 
-To regenerate the built-in music: `python3 Tools/make_test_music.py` and `python3 Tools/make_ensemble_music.py` (need numpy and ffmpeg).
+To regenerate the built-in music: `python3 Tools/make_sampled_music.py` and `python3 Tools/make_canon.py` (need FluidSynth, the `fluid-soundfont-gm` soundfont, `mido` and ffmpeg; see `Tools/midi_render.py`).
 
 The app icon (three layers) and logo are in `SynesthesiaVisualizer/Assets.xcassets`; their SVG sources and a renderer are in `Design/`.
 

@@ -33,9 +33,9 @@ enum AppInfo {
     static let privacy = "Everything you create stays on your device. The app has no accounts and sends no data."
 
     static let musicCredits = """
-        Built-in music: the compositions are in the public domain, and the performances were \
-        made for this app by Old Gaffer Software, some using the FluidR3 GM soundfont \
-        (© Frank Wen, MIT licence). Music you import remains your responsibility.
+        Built-in music: the compositions are in the public domain, and the performances were made \
+        for this app by Old Gaffer Software with the FluidR3 GM soundfont (© Frank Wen, MIT licence). \
+        Music you import remains your responsibility.
         """
 
     static let trademarks = "Apple Vision Pro and visionOS are trademarks of Apple Inc."
