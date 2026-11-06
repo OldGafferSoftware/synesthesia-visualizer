@@ -159,18 +159,29 @@ struct LayersPane: View {
                     NavigationLink {
                         LayerEditor(layer: $layer)
                     } label: {
-                        HStack {
+                        HStack(spacing: 14) {
                             Image(systemName: layer.kind.systemImage)
-                            Text(layer.name)
+                                .font(.title3)
+                                .frame(width: 32)
+                                .foregroundStyle(layer.isVisible ? Color.primary : Color.secondary)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(layer.name).font(.headline)
+                                Text(layer.isVisible ? "On · tap to adjust" : "Off")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
                             Spacer()
-                            Toggle("Visible", isOn: $layer.isVisible).labelsHidden()
+                            Toggle("Show \(layer.name)", isOn: $layer.isVisible).labelsHidden()
                         }
+                        .padding(.vertical, 4)
                     }
                 }
                 .onDelete { model.preset.layers.remove(atOffsets: $0) }
                 .onMove { model.preset.layers.move(fromOffsets: $0, toOffset: $1) }
+            } header: {
+                Text("Switch on the effects you see")
             } footer: {
-                Text("Turn on “Show in my room” and play the music, then adjust each effect until it matches what you see.")
+                Text("Turn on “Show in my room” and play the music, then tap an effect to adjust it until it matches what you see. Use + to add a second copy of an effect.")
             }
         }
         .navigationTitle("Effects")
@@ -180,7 +191,7 @@ struct LayersPane: View {
                     Button(kind.label, systemImage: kind.systemImage) { model.addLayer(kind) }
                 }
             } label: {
-                Label("Add effect", systemImage: "plus")
+                Label("Add another effect", systemImage: "plus")
             }
         }
     }
@@ -265,16 +276,28 @@ struct LayerEditor: View {
 
 struct PresetsPane: View {
     @Environment(AppModel.self) private var model
+    @State private var showSaveAlert = false
+    @State private var pendingName = ""
+    @State private var showNewPresetChoice = false
 
     var body: some View {
         @Bindable var model = model
 
         List {
-            Section("Current preset") {
+            Section {
                 TextField("Preset name", text: $model.preset.name)
+                    .font(.title3)
                 LabeledContent("Music", value: model.preset.trackTitle ?? "None chosen")
-                Button("Save", systemImage: "square.and.arrow.down.on.square") { model.savePreset() }
-                Button("Start a new preset", systemImage: "plus") { model.newPreset() }
+                LabeledContent("Effects on", value: "\(model.preset.layers.filter(\.isVisible).count) of \(model.preset.layers.count)")
+                Button("Save…", systemImage: "square.and.arrow.down.on.square") {
+                    pendingName = model.preset.name
+                    showSaveAlert = true
+                }
+                Button("New preset…", systemImage: "plus") { showNewPresetChoice = true }
+            } header: {
+                Text("Current preset")
+            } footer: {
+                Text(model.isCurrentPresetSaved ? "Saving again updates this preset." : "Not saved yet.")
             }
 
             Section {
@@ -312,5 +335,21 @@ struct PresetsPane: View {
             }
         }
         .navigationTitle("Save and record")
+        .alert("Save preset", isPresented: $showSaveAlert) {
+            TextField("Preset name", text: $pendingName)
+            Button("Save") { model.savePreset(named: pendingName) }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Confirm the name for this preset, or change it.")
+        }
+        .confirmationDialog("Start a new preset", isPresented: $showNewPresetChoice, titleVisibility: .visible) {
+            Button("Start from “\(model.preset.name)”") { model.newPreset(fromCurrent: true) }
+            Button("Start with a clean slate") { model.newPreset(fromCurrent: false) }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text(model.isCurrentPresetSaved
+                 ? "Your saved presets stay as they are."
+                 : "The current preset hasn't been saved. Save it first if you want to keep it.")
+        }
     }
 }

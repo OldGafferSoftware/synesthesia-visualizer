@@ -174,14 +174,16 @@ struct Preset: Codable, Identifiable, Hashable {
         0x3D7BFF, 0xFF8C00, 0xBB75FC, 0x33CC33, 0xA9A9C9, 0x8EC9FF,
     ] as [UInt32]).map { RGBA(hex: $0) }
 
+    /// A clean slate: every kind of effect listed, all switched off, ready to be built up.
     static var starter: Preset {
         Preset(
             name: "My preset",
             noteColors: rainbowColors,
-            layers: [
-                EffectLayer(name: "Orbs", kind: .orbs),
-                EffectLayer(name: "Ribbon", kind: .ribbon, reaction: .treble),
-            ]
+            layers: EffectKind.allCases.map { kind in
+                var layer = EffectLayer(name: kind.label, kind: kind, reaction: kind == .ribbon ? .treble : .volume)
+                layer.isVisible = false
+                return layer
+            }
         )
     }
 }

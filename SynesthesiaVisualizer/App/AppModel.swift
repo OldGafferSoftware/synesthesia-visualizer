@@ -68,7 +68,9 @@ final class AppModel {
 
     // MARK: Presets
 
-    func savePreset() {
+    func savePreset(named name: String) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        preset.name = trimmed.isEmpty ? "Untitled preset" : trimmed
         do {
             try presetStore.save(preset)
             savedPresets = presetStore.loadAll()
@@ -78,12 +80,25 @@ final class AppModel {
         }
     }
 
-    func newPreset() {
-        var fresh = Preset.starter
+    /// Starts a new, unsaved preset: either a copy of the current one or a clean slate.
+    func newPreset(fromCurrent: Bool) {
+        var fresh: Preset
+        if fromCurrent {
+            fresh = preset
+            fresh.id = UUID()
+            fresh.createdAt = Date()
+            fresh.name = "Copy of \(preset.name)"
+            for i in fresh.layers.indices { fresh.layers[i].id = UUID() }
+        } else {
+            fresh = Preset.starter
+        }
         fresh.trackID = selectedTrack?.id
         fresh.trackTitle = selectedTrack?.title
         preset = fresh
     }
+
+    /// Whether the current preset has been saved under its current id.
+    var isCurrentPresetSaved: Bool { savedPresets.contains { $0.id == preset.id } }
 
     func open(_ saved: Preset) {
         preset = saved

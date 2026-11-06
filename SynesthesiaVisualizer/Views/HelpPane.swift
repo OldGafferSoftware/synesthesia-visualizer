@@ -82,9 +82,9 @@ enum HelpContent {
         Step(title: "Set your note colours",
              body: "Open Note colours. Tap a note to hear it held, choose the colour you see for it, then tap again to stop."),
         Step(title: "Shape the effects",
-             body: "Open Effects. Add the kinds of light you see, then adjust each one’s colour, size, speed, placement and how it reacts to the music."),
+             body: "Open Effects. Every effect starts switched off. Switch on the kinds of light you see, then tap each one to adjust its colour, size, speed, placement and how it reacts to the music."),
         Step(title: "Save and record",
-             body: "Open Save and record. Name and save your preset, then follow the steps there to record what you see with Record My View."),
+             body: "Open Save and record. Tap Save…, confirm or edit the name, then follow the steps there to record what you see with Record My View."),
     ]
 
     static let topics: [Topic] = [
@@ -110,11 +110,11 @@ enum HelpContent {
             Item(title: "Speed follows the music’s tempo", systemImage: "metronome",
                  body: "When on, effects move faster with faster music and slower with slower music. The Speed slider still sets the overall pace."),
             Item(title: "Layers", systemImage: "square.3.layers.3d",
-                 body: "You can add several effects at once. Use the switch beside each to show or hide it, swipe to delete, and drag to reorder."),
+                 body: "Every effect is listed on the Effects screen, switched off to start. Use the switch beside each to show or hide it. Tap + to add a second copy of an effect, and swipe to delete one."),
         ]),
         Topic(title: "Sharing what you see", items: [
             Item(title: "Presets", systemImage: "square.and.arrow.down.on.square",
-                 body: "A preset saves everything: your note colours, every effect and its settings, and the music. Open it any time to see the same experience again."),
+                 body: "A preset saves everything: your note colours, every effect and its settings, and the music. Tap Save… and confirm the name. New preset… lets you start from the current preset or a clean slate."),
             Item(title: "Sending a preset", systemImage: "square.and.arrow.up",
                  body: "Use the share button beside a saved preset to send it by AirDrop, Messages or email. Someone with the app can open it and see what you see."),
             Item(title: "Recording a video", systemImage: "record.circle",
