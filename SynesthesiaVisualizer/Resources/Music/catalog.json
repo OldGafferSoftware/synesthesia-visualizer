@@ -11,9 +11,9 @@
     "file": "pachelbel-canon.m4a",
     "title": "Canon in D",
     "composer": "Pachelbel",
-    "performer": "Synthesized ensemble: strings, harp, flute",
-    "licence": "Composition in the public domain (c. 1700); this performance made for this app",
-    "source": "Tools/make_ensemble_music.py"
+    "performer": "Cello, harp, strings and three violins in canon (sampled instruments)",
+    "licence": "Composition in the public domain (c. 1700); this performance made for this app with the FluidR3 GM soundfont (MIT licence, Frank Wen)",
+    "source": "Tools/make_canon.py"
   },
   {
     "file": "ode-to-joy-synth.m4a",

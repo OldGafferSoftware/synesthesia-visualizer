@@ -37,7 +37,7 @@ struct RGBA: Codable, Hashable {
 }
 
 enum EffectKind: String, Codable, CaseIterable, Identifiable {
-    case orbs, ribbon, bursts
+    case orbs, ribbon, bursts, aurora
 
     var id: String { rawValue }
 
@@ -46,6 +46,7 @@ enum EffectKind: String, Codable, CaseIterable, Identifiable {
         case .orbs: "Floating orbs"
         case .ribbon: "Flowing ribbon"
         case .bursts: "Bursts on the beat"
+        case .aurora: "Aurora (northern lights)"
         }
     }
 
@@ -54,6 +55,7 @@ enum EffectKind: String, Codable, CaseIterable, Identifiable {
         case .orbs: "circle.hexagongrid.fill"
         case .ribbon: "scribble.variable"
         case .bursts: "sparkles"
+        case .aurora: "rainbow"
         }
     }
 }

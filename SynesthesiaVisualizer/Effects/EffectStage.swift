@@ -90,6 +90,7 @@ final class EffectStage {
         case .orbs: return OrbsNode()
         case .ribbon: return RibbonNode()
         case .bursts: return BurstsNode()
+        case .aurora: return AuroraNode()
         }
     }
 }

@@ -34,7 +34,8 @@ enum AppInfo {
 
     static let musicCredits = """
         Built-in music: the compositions are in the public domain, and the performances were \
-        synthesized for this app by Old Gaffer Software. Music you import remains your responsibility.
+        made for this app by Old Gaffer Software, some using the FluidR3 GM soundfont \
+        (© Frank Wen, MIT licence). Music you import remains your responsibility.
         """
 
     static let trademarks = "Apple Vision Pro and visionOS are trademarks of Apple Inc."

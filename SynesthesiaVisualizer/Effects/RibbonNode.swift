@@ -212,4 +212,17 @@ final class FlowMesh {
             }
         }
     }
+
+    /// Sets the strip directly from matching edge points: `left` edges get v = 0, `right` edges v = 1.
+    func setStrip(left: [SIMD3<Float>], right: [SIMD3<Float>], u: [Float], normal: SIMD3<Float>) {
+        let n = min(points, left.count, right.count, u.count)
+        guard n > 1 else { return }
+        mesh.withUnsafeMutableBytes(bufferIndex: 0) { raw in
+            let vertices = raw.bindMemory(to: Vertex.self)
+            for i in 0..<n {
+                vertices[i * 2] = Vertex(position: left[i], normal: normal, uv: [u[i], 0])
+                vertices[i * 2 + 1] = Vertex(position: right[i], normal: normal, uv: [u[i], 1])
+            }
+        }
+    }
 }

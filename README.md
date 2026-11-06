@@ -7,9 +7,9 @@ This is the **testing prototype**: enough to put in front of people with synesth
 ## What's in the prototype
 
 - **Mixed reality stage.** "Show in my room" opens effects in your space, with your room still visible.
-- **Music.** Four built-in pieces: Grieg's *In the Hall of the Mountain King* (speeds up from slow to very fast) and Pachelbel's *Canon in D* (slow strings, harp and flute), both played by a synthesized ensemble, plus a note-by-note scale and a simple *Ode to Joy*. You can also import your own audio files.
+- **Music.** Four built-in pieces: Grieg's *In the Hall of the Mountain King* (speeds up from slow to very fast) and Pachelbel's *Canon in D* (cello, harp and three violins in canon, rendered with sampled instruments), plus a note-by-note scale and a simple *Ode to Joy*. You can also import your own audio files.
 - **Live audio analysis.** Volume, bass / middle / treble, the strongest note (C to B), beats and tempo, measured as the music plays.
-- **Three effects.** Floating orbs (each tied to a note), flowing light (glowing strands that braid like water, one colour per strong note, rising with higher sounds), and bursts on the beat.
+- **Four effects.** Floating orbs (each tied to a note), flowing light (glowing strands that braid like water, one colour per strong note, rising with higher sounds), light-explosion bursts on the beat, and an aurora (shimmering curtains of northern lights).
 - **Note colours.** Choose a colour for each of the 12 notes, with a live readout of which note is sounding.
 - **Effect controls.** Type, placement (in front, all around, above), colour, opacity, size, speed, whether speed follows the music's tempo, what it reacts to, sensitivity.
 - **Splash and Info.** A launch page with copyright, a not-medical-advice notice and a flashing-lights warning; the Info button shows it again with a contact email.
