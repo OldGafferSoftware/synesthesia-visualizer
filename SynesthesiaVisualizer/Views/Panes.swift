@@ -149,7 +149,6 @@ struct NoteSwatch: View {
 
 struct LayersPane: View {
     @Environment(AppModel.self) private var model
-    @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     /// The effect being adjusted. A plain button sets this, so rows show no navigation arrow.
     @State private var editingID: EffectLayer.ID?
 
@@ -157,26 +156,6 @@ struct LayersPane: View {
         @Bindable var model = model
 
         List {
-            if !model.isStageOpen {
-                // Effects only appear in the room, so make that obvious here.
-                Section {
-                    HStack(spacing: 16) {
-                        Image(systemName: "visionpro").font(.title2)
-                        Text("Effects appear in your room, not in this window.")
-                        Spacer()
-                        Button("Show in my room") {
-                            Task { @MainActor in
-                                if case .opened = await openImmersiveSpace(id: AppModel.stageID) {
-                                    model.isStageOpen = true
-                                }
-                            }
-                        }
-                        .buttonStyle(.borderedProminent)
-                    }
-                    .padding(.vertical, 4)
-                }
-            }
-
             Section {
                 ForEach($model.preset.layers) { $layer in
                     // Switch, icon and name on the left; the ••• (adjust), + and − buttons sit together at the right edge
@@ -257,7 +236,7 @@ struct TempoReadout: View {
     var body: some View {
         TimelineView(.periodic(from: .now, by: 0.5)) { _ in
             LabeledContent("Tempo now") {
-                Text(model.audio.isPlaying ? "about \(Int(model.audio.features.tempo.rounded())) beats a minute" : "play some music")
+                Text(model.audio.isPlaying ? "about \(Int(model.audio.features.tempo.rounded())) beats a minute" : "Play music to sample tempo")
                     .foregroundStyle(.secondary)
             }
         }

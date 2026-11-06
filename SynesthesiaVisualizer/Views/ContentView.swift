@@ -87,6 +87,7 @@ struct ContentView: View {
                     Label(model.audio.isPlaying ? "Pause" : "Play",
                           systemImage: model.audio.isPlaying ? "pause.fill" : "play.fill")
                 }
+                .help(model.audio.isPlaying ? "Pause Notes/Music" : "Play Notes/Music")
                 .disabled(model.selectedTrack == nil)
 
                 Button {
@@ -94,12 +95,14 @@ struct ContentView: View {
                 } label: {
                     Label("Play from the start", systemImage: "backward.end.fill")
                 }
+                .help("Rewind Notes/Music")
                 .disabled(model.selectedTrack == nil)
 
                 Toggle(isOn: stageBinding) {
                     Label("Show in my room", systemImage: "visionpro")
                 }
                 .toggleStyle(.button)
+                .help("Show visual effects in my room")
             }
         }
         .alert("Synesthesia Visualizer", isPresented: Binding(
