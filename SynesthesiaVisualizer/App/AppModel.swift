@@ -60,10 +60,29 @@ final class AppModel {
 
     // MARK: Layers
 
-    func addLayer(_ kind: EffectKind) {
-        let count = preset.layers.filter { $0.kind == kind }.count
-        let name = count == 0 ? kind.label : "\(kind.label) \(count + 1)"
-        preset.layers.append(EffectLayer(name: name, kind: kind))
+    /// Adds a new copy of an effect, placed right after `sourceID` if given, otherwise after the last
+    /// effect of the same kind, so copies of one effect stay grouped together.
+    func addLayer(_ kind: EffectKind, after sourceID: EffectLayer.ID? = nil) {
+        let names = Set(preset.layers.map(\.name))
+        var name = kind.label
+        var number = 2
+        while names.contains(name) {
+            name = "\(kind.label) \(number)"
+            number += 1
+        }
+        let layer = EffectLayer(name: name, kind: kind)
+
+        let anchor = sourceID.flatMap { id in preset.layers.firstIndex { $0.id == id } }
+            ?? preset.layers.lastIndex { $0.kind == kind }
+        if let anchor {
+            preset.layers.insert(layer, at: anchor + 1)
+        } else {
+            preset.layers.append(layer)
+        }
+    }
+
+    func removeLayer(_ id: EffectLayer.ID) {
+        preset.layers.removeAll { $0.id == id }
     }
 
     // MARK: Presets

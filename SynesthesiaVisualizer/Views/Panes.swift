@@ -172,6 +172,25 @@ struct LayersPane: View {
                                 .foregroundStyle(.secondary)
                         }
                         Spacer(minLength: 32)
+                        HStack(spacing: 4) {
+                            Button {
+                                model.addLayer(layer.kind, after: layer.id)
+                            } label: {
+                                Image(systemName: "plus.circle")
+                                    .font(.title3)
+                                    .frame(width: 44, height: 44)
+                            }
+                            .accessibilityLabel("Add another \(layer.kind.label)")
+                            Button {
+                                model.removeLayer(layer.id)
+                            } label: {
+                                Image(systemName: "minus.circle")
+                                    .font(.title3)
+                                    .frame(width: 44, height: 44)
+                            }
+                            .accessibilityLabel("Remove \(layer.name)")
+                        }
+                        .buttonStyle(.borderless)
                         NavigationLink {
                             LayerEditor(layer: $layer)
                         } label: {
@@ -187,7 +206,7 @@ struct LayersPane: View {
             } header: {
                 Text("Switch on the effects you see")
             } footer: {
-                Text("Turn on “Show in my room” and play the music. Use the switch to turn an effect on, and Adjust to change it until it matches what you see. Use + to add a second copy of an effect.")
+                Text("Turn on “Show in my room” and play the music. Use the switch to turn an effect on, and Adjust to change it until it matches what you see. Use + on a row to add another copy just below it, and − to remove that row. The + at the top right adds back an effect you've removed.")
             }
         }
         .navigationTitle("Effects")
