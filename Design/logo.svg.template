@@ -10,4 +10,5 @@
   <image href="data:image/png;base64,__ICON__" x="320" y="50" width="560" height="560"/>
   <text x="600" y="790" text-anchor="middle" font-family="Inter Display" font-weight="600" font-size="128" fill="__INK__" letter-spacing="-1">Synesthesia</text>
   <text x="613" y="900" text-anchor="middle" font-family="Inter" font-weight="500" font-size="60" fill="url(#word)" letter-spacing="26">VISUALIZER</text>
+  <text x="900" y="880" font-family="Inter" font-weight="500" font-size="38" fill="#2fd2ff">™</text>
 </svg>

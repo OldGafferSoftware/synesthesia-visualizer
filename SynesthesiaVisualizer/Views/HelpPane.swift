@@ -58,13 +58,17 @@ struct HelpPane: View {
                 }
             }
 
-            Section("Still stuck?") {
+            Section {
                 Link(destination: AppInfo.emailURL) {
                     Label("Email us at \(AppInfo.email)", systemImage: "envelope")
                 }
+            } header: {
+                Text("Still stuck?")
+            } footer: {
+                Text("\(AppInfo.name), version \(AppInfo.version)")
             }
         }
-        .navigationTitle("Help")
+        .navigationTitle("\(AppInfo.name) Help")
     }
 }
 

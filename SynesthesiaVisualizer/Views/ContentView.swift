@@ -105,7 +105,7 @@ struct ContentView: View {
                 .help("Show visual effects in my room")
             }
         }
-        .alert("Synesthesia Visualizer", isPresented: Binding(
+        .alert(AppInfo.name, isPresented: Binding(
             get: { model.message != nil },
             set: { if !$0 { model.message = nil } }
         )) {

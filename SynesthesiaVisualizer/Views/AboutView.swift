@@ -2,7 +2,8 @@ import SwiftUI
 
 /// Names, notices and contact details shown on the splash page and the Info sheet.
 enum AppInfo {
-    static let name = "Synesthesia Visualizer"
+    /// "™" marks a claimed, unregistered trademark. Switch to "®" only once the registration is granted.
+    static let name = "Synesthesia Visualizer™"
     static let copyright = "© 2026 David Hodge, Old Gaffer Software. All rights reserved."
     static let email = "info@oldgaffersoftware.com"
     static let emailURL = URL(string: "mailto:\(email)?subject=Synesthesia%20Visualizer")!
@@ -15,7 +16,7 @@ enum AppInfo {
     }
 
     static let purpose = """
-        Synesthesia Visualizer helps people with music-colour synesthesia show others what they see \
+        \(name) helps people with music-colour synesthesia show others what they see \
         when they hear music: build the effects, save them with the music, and record what you see.
         """
 
@@ -38,7 +39,7 @@ enum AppInfo {
         Music you import remains your responsibility.
         """
 
-    static let trademarks = "Apple Vision Pro and visionOS are trademarks of Apple Inc."
+    static let trademarks = "\(name) is a trademark of Old Gaffer Software. Apple Vision Pro and visionOS are trademarks of Apple Inc."
 }
 
 /// Shown at launch (the user must tap Continue) and from the Info button.
