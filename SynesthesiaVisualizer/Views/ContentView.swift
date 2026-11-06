@@ -36,10 +36,24 @@ struct ContentView: View {
 
     var body: some View {
         NavigationSplitView {
-            List(Pane.allCases, selection: $pane) { pane in
-                Label(pane.title, systemImage: pane.systemImage).tag(pane)
+            List(selection: $pane) {
+                Section {
+                    ForEach(Pane.allCases) { pane in
+                        Label(pane.title, systemImage: pane.systemImage).tag(pane)
+                    }
+                } header: {
+                    // The app's logo in place of a title, so the sidebar doesn't just say "Synesthesia".
+                    Image("Logo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxWidth: 180)
+                        .frame(maxWidth: .infinity)
+                        .padding(.bottom, 12)
+                        .accessibilityLabel(AppInfo.name)
+                        .textCase(nil)
+                }
             }
-            .navigationTitle("Synesthesia")
+            .navigationTitle("")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("About this app", systemImage: "info.circle") { showInfo = true }
