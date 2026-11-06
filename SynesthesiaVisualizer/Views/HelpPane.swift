@@ -96,7 +96,7 @@ enum HelpContent {
             Item(title: "Bursts on the beat", systemImage: EffectKind.bursts.systemImage,
                  body: "A flash and a spray of sparks on each beat, starting white-hot and cooling into the note’s colour."),
             Item(title: "Aurora", systemImage: EffectKind.aurora.systemImage,
-                 body: "Tall curtains of light far off in the sky, made of fine shimmering rays that fold and ripple like the northern lights. The strongest note’s colour glows along the bright lower edge, and the next strongest fades in above. It appears beyond your walls, so look up and out."),
+                 body: "Long, soft bands of light high in the sky, made of shimmering rays, that curl and ripple like the northern lights and stretch away toward the horizon. The strongest note’s colour glows along each band’s lower edge, and the next strongest fades in above. It appears beyond your walls and ceiling, so look up and out."),
         ]),
         Topic(title: "Effect settings", items: [
             Item(title: "Colour", systemImage: "paintpalette",

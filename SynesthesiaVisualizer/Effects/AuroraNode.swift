@@ -1,34 +1,35 @@
 import RealityKit
 import UIKit
 
-/// Northern lights at sky scale: tall curtains far away and above eye level, so you look up at
-/// them (they show through walls and ceiling, like a window onto the sky).
+/// Northern lights as they look from the ground: long, soft bands of light high in the sky.
 ///
-/// Each curtain has a sharp, bright lower edge that fades upward into a faint fringe of a second
-/// colour, and is made of many fine vertical rays. Two ray layers drift against each other so the
-/// rays shimmer. The curtain folds slowly, and small faster kinks ripple along its lower edge.
-/// Three curtains at different distances give depth. Colours blend smoothly from note to note,
-/// and the light swells and fades gradually with the music.
+/// Each band is a tall curtain whose bottom edge sits about ten metres up and runs for tens of
+/// metres. Seen from below, bands running away from you converge toward the horizon, as in
+/// photographs of the aurora. Each has a brighter lower edge that fades softly upward into a
+/// second colour, made of soft vertical rays; two ray layers drift against each other so the
+/// light shimmers. Bands sway and curl slowly, with faster ripples running along them.
+/// Colours blend smoothly from note to note, and the light swells and fades with the music.
 @MainActor
 final class AuroraNode: LayerNode {
     let entity = Entity()
     let kind = EffectKind.aurora
 
-    private struct Curtain {
+    private struct Band {
         let lower: CurtainMesh
         let shimmer: CurtainMesh
         let upper: CurtainMesh
-        /// 0 is the nearest curtain; larger numbers are farther away.
-        let distance: Float
+        /// Sideways offset (front and above) or direction (all around), from -1 to 1.
+        let offset: Float
         let phase: Float
+        let bottom: Float
         let heightScale: Float
         let brightness: Float
     }
 
-    private static let columns = 220
-    private static let rows = 16
+    private static let columns = 160
+    private static let rows = 14
 
-    private var curtains: [Curtain] = []
+    private var bands: [Band] = []
     private let lowerTexture = AuroraTexture.makeLower(seed: 1)
     private let shimmerTexture = AuroraTexture.makeLower(seed: 2)
     private let upperTexture = AuroraTexture.makeUpper()
@@ -41,28 +42,31 @@ final class AuroraNode: LayerNode {
     private var highColor = SIMD3<Float>(0.6, 0.3, 1)
 
     init() {
-        let settings: [(distance: Float, phase: Float, height: Float, brightness: Float)] = [
-            (0, 0, 1, 1),
-            (1, 1.9, 1.25, 0.7),
-            (2.2, 3.7, 0.85, 0.5),
+        let settings: [(offset: Float, phase: Float, bottom: Float, height: Float, brightness: Float)] = [
+            (-0.85, 0.0, 10, 1.0, 0.75),
+            (-0.45, 2.1, 9, 1.2, 1.0),
+            (-0.1, 4.0, 11, 0.9, 0.85),
+            (0.25, 1.2, 9.5, 1.3, 1.0),
+            (0.6, 3.1, 10.5, 1.0, 0.8),
+            (0.95, 5.0, 12, 0.8, 0.6),
         ]
-        for s in settings.reversed() {   // farthest first, so nearer curtains draw over them
+        for s in settings {
             guard let lower = CurtainMesh(columns: Self.columns, rows: Self.rows),
                   let shimmer = CurtainMesh(columns: Self.columns, rows: Self.rows),
                   let upper = CurtainMesh(columns: Self.columns, rows: Self.rows) else { continue }
             entity.addChild(upper.entity)
             entity.addChild(lower.entity)
             entity.addChild(shimmer.entity)
-            curtains.append(Curtain(lower: lower, shimmer: shimmer, upper: upper, distance: s.distance,
-                                    phase: s.phase, heightScale: s.height, brightness: s.brightness))
+            bands.append(Band(lower: lower, shimmer: shimmer, upper: upper, offset: s.offset, phase: s.phase,
+                              bottom: s.bottom, heightScale: s.height, brightness: s.brightness))
         }
     }
 
     func update(_ c: LayerContext) {
         let dt = c.deltaTime
-        drift += dt * 0.12 * c.speed
-        kinkDrift += dt * (0.6 + 0.8 * glow) * c.speed
-        rayDrift += dt * 0.01 * c.speed
+        drift += dt * 0.08 * c.speed
+        kinkDrift += dt * (0.5 + 0.7 * glow) * c.speed
+        rayDrift += dt * 0.008 * c.speed
 
         // Swell and fade slowly, the way an aurora brightens.
         let target = min(1.1, c.drive)
@@ -79,59 +83,71 @@ final class AuroraNode: LayerNode {
         let lowUI = UIColor(red: CGFloat(lowColor.x), green: CGFloat(lowColor.y), blue: CGFloat(lowColor.z), alpha: 1)
         let highUI = UIColor(red: CGFloat(highColor.x), green: CGFloat(highColor.y), blue: CGFloat(highColor.z), alpha: 1)
 
-        for curtain in curtains {
-            let height = 5 * curtain.heightScale * (0.9 + 0.2 * glow)
+        for band in bands {
+            let height = 8 * band.heightScale * (0.85 + 0.3 * glow)
             let shape = { (a: Float, h: Float, reach: Float) -> SIMD3<Float> in
-                self.point(along: a, up: h, height: height * reach, curtain: curtain,
+                self.point(along: a, up: h, height: height * reach, band: band,
                            placement: c.layer.placement) * scale
             }
-            let p = curtain.phase * 0.1
-            curtain.lower.update(position: { a, h in shape(a, h, 1) },
-                                 u: { a in a * 6 + self.rayDrift + p })
-            curtain.shimmer.update(position: { a, h in shape(a, h, 1.05) },
-                                   u: { a in a * 6.4 - self.rayDrift * 1.7 + p })
-            curtain.upper.update(position: { a, h in shape(a, h, 1.6) },
-                                 u: { a in a * 5 - self.rayDrift * 0.6 + p })
+            let p = band.phase * 0.1
+            curtainUpdate(band.lower, shape, reach: 1, u: { a in a * 12 + self.rayDrift + p })
+            curtainUpdate(band.shimmer, shape, reach: 1.05, u: { a in a * 12.7 - self.rayDrift * 1.6 + p })
+            curtainUpdate(band.upper, shape, reach: 1.5, u: { a in a * 10 - self.rayDrift * 0.6 + p })
 
-            let alpha = opacity * curtain.brightness
-            curtain.lower.entity.model?.materials = [texturedLight(lowUI, texture: lowerTexture, opacity: alpha * 0.8)]
-            curtain.shimmer.entity.model?.materials = [texturedLight(lowUI, texture: shimmerTexture, opacity: alpha * 0.55)]
-            curtain.upper.entity.model?.materials = [texturedLight(highUI, texture: upperTexture, opacity: alpha * 0.6)]
+            let alpha = opacity * band.brightness
+            band.lower.entity.model?.materials = [texturedLight(lowUI, texture: lowerTexture, opacity: alpha * 0.55)]
+            band.shimmer.entity.model?.materials = [texturedLight(lowUI, texture: shimmerTexture, opacity: alpha * 0.35)]
+            band.upper.entity.model?.materials = [texturedLight(highUI, texture: upperTexture, opacity: alpha * 0.3)]
         }
     }
 
-    /// A point on a curtain at size 1, in metres from the placement's anchor.
-    /// `a` runs along the curtain (0...1), `h` up it (0 at the bottom edge, 1 at the top).
-    private func point(along a: Float, up h: Float, height: Float, curtain: Curtain,
+    private func curtainUpdate(_ mesh: CurtainMesh, _ shape: (Float, Float, Float) -> SIMD3<Float>,
+                               reach: Float, u: (Float) -> Float) {
+        mesh.update(position: { a, h in shape(a, h, reach) }, u: u)
+    }
+
+    /// A point on a band at size 1, in metres from the placement's anchor.
+    /// `a` runs along the band (0...1), `h` up it (0 at the bottom edge, 1 at the top).
+    private func point(along a: Float, up h: Float, height: Float, band: Band,
                        placement: Placement) -> SIMD3<Float> {
-        let d = drift + curtain.phase
-        let k = kinkDrift + curtain.phase * 2
-        // The top sways more than the bottom.
-        let sway = pow(h, 1.3)
+        let d = drift + band.phase
+        let k = kinkDrift + band.phase * 2
+        let sway = pow(h, 1.3)   // the top drifts more than the bottom edge
+
+        // Distance along the band, and the band's slow curls and faster ripples sideways to it.
+        let along: Float
+        let side: Float
+        switch placement {
+        case .front: along = 6 - a * 75          // from just overhead to far off near the horizon
+        case .above: along = 35 - a * 70         // passing right over you
+        case .surround: along = 3 + a * 60       // from overhead outward
+        }
+        let curl = 4.5 * sin(0.05 * along + d) + 1.8 * sin(0.13 * along - d * 1.3)
+        let ripple = 0.35 * sin(0.9 * along - k) * (1 - 0.5 * h)
+        let lean = 1.2 * sway * sin(0.07 * along + d * 0.6 + h)
+        side = curl + ripple + lean
+        let bottom = band.bottom + 1.0 * sin(0.04 * along + d * 0.7)
+        // Bands thin out to nothing at their ends instead of stopping abruptly.
+        let taper = smooth(0, 0.18, a) * (1 - smooth(0.7, 1, a))
+        let y = bottom + h * height * taper
 
         switch placement {
-        case .surround:
-            // A ring of curtains around you, far off.
-            let angle = a * 2 * .pi
-            let fold = 1.4 * sin(3 * angle + d) + 0.6 * sin(7 * angle - d * 1.4)
-            let kink = 0.3 * sin(23 * angle - k) * (1 - 0.5 * h)
-            let rise = 0.8 * sway * sin(2 * angle - d * 0.8 + 1.5 * h)
-            let radius = 9 + 2.5 * curtain.distance + fold + kink + rise
-            let bottom = 1.6 + 0.3 * sin(4 * angle + d * 0.7)
-            return [cos(angle) * radius, bottom + h * height, sin(angle) * radius]
-
         case .front, .above:
-            // A long curtain across the sky ahead, or arching overhead.
-            let x = (a - 0.5) * 26
-            let fold = 1.6 * sin(0.24 * x + d) + 0.7 * sin(0.55 * x - d * 1.3)
-            let kink = 0.28 * sin(2.3 * x - k) * (1 - 0.5 * h)
-            let rise = 0.9 * sway * sin(0.3 * x - d * 0.9 + 1.5 * h)
-            let lean = 0.5 * sway * sin(0.17 * x + d * 0.5)
-            let overhead = placement == .above
-            let z = overhead ? -(1 + 2.5 * curtain.distance) : -(8 + 2.5 * curtain.distance)
-            let bottom: Float = (overhead ? 1.2 : 1.4) + 0.3 * sin(0.4 * x + d * 0.6)
-            return [x + lean, bottom + h * height, z + fold + kink + rise]
+            let x = band.offset * 18 + side
+            return [x, y, along]
+        case .surround:
+            // Bands radiate out from overhead in every direction, like an aurora corona.
+            let angle = (band.offset + 1) * .pi + d * 0.05
+            let dir = SIMD2<Float>(cos(angle), sin(angle))
+            let perp = SIMD2<Float>(-dir.y, dir.x)
+            let flat = dir * along + perp * side
+            return [flat.x, y, flat.y]
         }
+    }
+
+    private func smooth(_ lo: Float, _ hi: Float, _ x: Float) -> Float {
+        let t = max(0, min(1, (x - lo) / (hi - lo)))
+        return t * t * (3 - 2 * t)
     }
 
     private func targetColors(_ c: LayerContext) -> (SIMD3<Float>, SIMD3<Float>) {
@@ -196,7 +212,7 @@ final class CurtainMesh {
         }
         mesh.parts.replaceAll([
             LowLevelMesh.Part(indexCount: indexCount, topology: .triangle,
-                              bounds: BoundingBox(min: [-60, -10, -60], max: [60, 60, 60])),
+                              bounds: BoundingBox(min: [-120, -10, -120], max: [120, 80, 120])),
         ])
         guard let resource = try? MeshResource(from: mesh) else { return nil }
         self.mesh = mesh
@@ -233,14 +249,14 @@ enum AuroraTexture {
         }
         var sum: Float = 0
         var total: Float = 0
-        for f in stride(from: 3, through: 48, by: 3) {
+        for f in stride(from: 2, through: 26, by: 2) {
             let amp = (0.4 + 0.6 * random()) / sqrt(Float(f))
             sum += amp * sin(2 * .pi * (Float(f) * u + random()))
             total += amp
         }
         // Sharpen into distinct streaks, with a dim floor between them.
         let n = 0.5 + 0.5 * sum / total
-        return 0.25 + 0.75 * pow(max(0, n), 2.2) * 1.8
+        return 0.35 + 0.65 * pow(max(0, n), 1.6) * 1.6
     }
 
     /// A sharp, bright lower edge that fades upward through the rays.
@@ -248,13 +264,13 @@ enum AuroraTexture {
     static func makeLower(seed: UInt32) -> MaterialParameters.Texture? {
         TextureMaker.make(width: 1024, height: 128, repeatsHorizontally: true) { u, v in
             let up = 1 - v                                     // image rows run top to bottom
-            let edge = smoothstep(0, 0.03, up)
-            let fade = 0.85 * exp(-up * 3.2) + 0.15 * (1 - up)
+            let edge = smoothstep(0, 0.1, up)
+            let fade = 0.75 * exp(-up * 2.6) + 0.25 * (1 - up)
             return min(1, rays(u, seed: seed) * edge * fade)
         }
     }
 
-    /// A faint, high glow of the second colour at the top of the curtain.
+    /// A soft, high glow of the second colour at the top of the curtain.
     @MainActor
     static func makeUpper() -> MaterialParameters.Texture? {
         TextureMaker.make(width: 1024, height: 128, repeatsHorizontally: true) { u, v in
