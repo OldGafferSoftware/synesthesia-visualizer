@@ -285,11 +285,12 @@ struct LayerEditor: View {
 
     var body: some View {
         Form {
-            Section("Effect") {
-                TextField("Name", text: $layer.name)
+            Section("Where") {
                 Picker("Where", selection: $layer.placement) {
                     ForEach(Placement.allCases) { Text($0.label).tag($0) }
                 }
+                .pickerStyle(.segmented)
+                .labelsHidden()
             }
 
             Section("Colour") {
