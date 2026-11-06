@@ -215,7 +215,7 @@ final class CurtainMesh {
                 let uValue = u(a)
                 for row in 0..<rows {
                     let h = Float(row) / Float(rows - 1)
-                    vertices[col * rows + row] = FlowMesh.Vertex(position: position(a, h), normal: [0, 0, 1], uv: [uValue, h])
+                    vertices[col * rows + row] = FlowMesh.Vertex(position: position(a, h), normal: [0, 0, 1], uv: [uValue, 1 - h])   // texture row 0 is the bottom edge on device
                 }
             }
         }
