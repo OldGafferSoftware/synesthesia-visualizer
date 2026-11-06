@@ -9,6 +9,8 @@ final class AudioEngine {
 
     private(set) var isPlaying = false
     private(set) var loadedURL: URL?
+    /// The note (0 = C … 11 = B) being held for colour choosing, if any.
+    private(set) var heldNote: Int?
     var errorMessage: String?
 
     @ObservationIgnored private let engine = AVAudioEngine()
@@ -16,11 +18,26 @@ final class AudioEngine {
     @ObservationIgnored private var file: AVAudioFile?
     @ObservationIgnored private var needsSchedule = true
     @ObservationIgnored private var playbackToken = 0
+    @ObservationIgnored private let synth = NoteSynth()
 
     init() {
         engine.attach(player)
         engine.connect(player, to: engine.mainMixerNode, format: nil)
+        let synthNode = Self.makeSynthNode(synth: synth, sampleRate: engine.outputNode.outputFormat(forBus: 0).sampleRate)
+        engine.attach(synthNode)
+        engine.connect(synthNode, to: engine.mainMixerNode, format: synthNode.outputFormat(forBus: 0))
         Self.installAnalysisTap(on: engine.mainMixerNode, analyzer: analyzer)
+        Self.activateAudioSession()
+    }
+
+    /// Kept nonisolated so the render block runs freely on the audio thread.
+    nonisolated private static func makeSynthNode(synth: NoteSynth, sampleRate: Double) -> AVAudioSourceNode {
+        let rate = sampleRate > 0 ? sampleRate : 48_000
+        let format = AVAudioFormat(standardFormatWithSampleRate: rate, channels: 1)!
+        return AVAudioSourceNode(format: format) { _, _, frameCount, audioBufferList in
+            synth.render(frames: Int(frameCount), into: UnsafeMutableAudioBufferListPointer(audioBufferList), sampleRate: Float(rate))
+            return noErr
+        }
     }
 
     /// Kept nonisolated so the tap closure runs freely on the audio thread.
@@ -49,17 +66,46 @@ final class AudioEngine {
         }
     }
 
-    func play() {
-        guard let file else { return }
-        do {
+    /// Sets up the audio session once, off the main thread, because activating it can block briefly.
+    nonisolated private static func activateAudioSession() {
+        Task.detached(priority: .userInitiated) {
             let session = AVAudioSession.sharedInstance()
-            try session.setCategory(.playback, mode: .default)
-            try session.setActive(true)
+            try? session.setCategory(.playback, mode: .default)
+            try? session.setActive(true)
+        }
+    }
+
+    private func startEngine() -> Bool {
+        do {
             if !engine.isRunning { try engine.start() }
+            return true
         } catch {
             errorMessage = "Audio couldn't start: \(error.localizedDescription)"
-            return
+            return false
         }
+    }
+
+    // MARK: Held notes, for choosing colours
+
+    /// Holds one note (middle octave) until `stopNote()`. Pauses the music while it sounds.
+    func startNote(_ pitchClass: Int) {
+        if isPlaying { pause() }
+        guard startEngine() else { return }
+        synth.setNote(midi: 60 + pitchClass)
+        heldNote = pitchClass
+    }
+
+    func stopNote() {
+        synth.release()
+        heldNote = nil
+    }
+
+    // MARK: Music
+
+    func play() {
+        guard let file else { return }
+        if heldNote != nil { stopNote() }
+        guard startEngine() else { return }
         if needsSchedule { schedule(file) }
         player.play()
         isPlaying = true

@@ -60,15 +60,37 @@ final class AppModel {
 
     // MARK: Layers
 
-    func addLayer(_ kind: EffectKind) {
-        let count = preset.layers.filter { $0.kind == kind }.count
-        let name = count == 0 ? kind.label : "\(kind.label) \(count + 1)"
-        preset.layers.append(EffectLayer(name: name, kind: kind))
+    /// Adds a new copy of an effect, placed right after `sourceID` if given, otherwise after the last
+    /// effect of the same kind, so copies of one effect stay grouped together.
+    func addLayer(_ kind: EffectKind, after sourceID: EffectLayer.ID? = nil) {
+        let names = Set(preset.layers.map(\.name))
+        var name = kind.label
+        var number = 2
+        while names.contains(name) {
+            name = "\(kind.label) \(number)"
+            number += 1
+        }
+        var layer = EffectLayer(name: name, kind: kind)
+        layer.isVisible = false  // new copies start switched off
+
+        let anchor = sourceID.flatMap { id in preset.layers.firstIndex { $0.id == id } }
+            ?? preset.layers.lastIndex { $0.kind == kind }
+        if let anchor {
+            preset.layers.insert(layer, at: anchor + 1)
+        } else {
+            preset.layers.append(layer)
+        }
+    }
+
+    func removeLayer(_ id: EffectLayer.ID) {
+        preset.layers.removeAll { $0.id == id }
     }
 
     // MARK: Presets
 
-    func savePreset() {
+    func savePreset(named name: String) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        preset.name = trimmed.isEmpty ? "Untitled preset" : trimmed
         do {
             try presetStore.save(preset)
             savedPresets = presetStore.loadAll()
@@ -78,12 +100,25 @@ final class AppModel {
         }
     }
 
-    func newPreset() {
-        var fresh = Preset.starter
+    /// Starts a new, unsaved preset: either a copy of the current one or a clean slate.
+    func newPreset(fromCurrent: Bool) {
+        var fresh: Preset
+        if fromCurrent {
+            fresh = preset
+            fresh.id = UUID()
+            fresh.createdAt = Date()
+            fresh.name = "Copy of \(preset.name)"
+            for i in fresh.layers.indices { fresh.layers[i].id = UUID() }
+        } else {
+            fresh = Preset.starter
+        }
         fresh.trackID = selectedTrack?.id
         fresh.trackTitle = selectedTrack?.title
         preset = fresh
     }
+
+    /// Whether the current preset has been saved under its current id.
+    var isCurrentPresetSaved: Bool { savedPresets.contains { $0.id == preset.id } }
 
     func open(_ saved: Preset) {
         preset = saved

@@ -9,6 +9,9 @@ struct LayerContext {
     let layer: EffectLayer
     let noteColors: [RGBA]
 
+    /// Movement speed: the layer's own setting, scaled by the music's tempo if the layer follows it.
+    var speed: Float { Float(layer.speed) * (layer.followsTempo ? features.tempoFactor : 1) }
+
     /// How strongly the layer should react right now (0...~2).
     var drive: Float { features.value(for: layer.reaction) * Float(layer.sensitivity) }
 
@@ -18,6 +21,9 @@ struct LayerContext {
         case .notes: noteColors.isEmpty ? .white : noteColors[pitchClass % noteColors.count].uiColor
         }
     }
+
+    /// Roughly where the viewer's head is, in the layer's own coordinates.
+    var viewer: SIMD3<Float> { SIMD3<Float>(0, 1.5, 0) - layer.placement.anchor }
 
     /// The colour of the note sounding most strongly right now.
     var currentColor: UIColor { color(forPitchClass: features.dominantPitchClass) }
@@ -84,6 +90,7 @@ final class EffectStage {
         case .orbs: return OrbsNode()
         case .ribbon: return RibbonNode()
         case .bursts: return BurstsNode()
+        case .aurora: return AuroraNode()
         }
     }
 }

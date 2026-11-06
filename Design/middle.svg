@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="r1" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#ff3d6e" stop-opacity="0"/>
+      <stop offset="0.2" stop-color="#ff3d6e"/>
+      <stop offset="0.45" stop-color="#ffb02e"/>
+      <stop offset="0.7" stop-color="#4dff9a"/>
+      <stop offset="1" stop-color="#2fd2ff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="r2" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#7a5cff" stop-opacity="0"/>
+      <stop offset="0.25" stop-color="#7a5cff"/>
+      <stop offset="0.55" stop-color="#2fd2ff"/>
+      <stop offset="0.8" stop-color="#ff5ce1"/>
+      <stop offset="1" stop-color="#ff5ce1" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="r3" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#ffe14d" stop-opacity="0"/>
+      <stop offset="0.3" stop-color="#ffe14d"/>
+      <stop offset="0.65" stop-color="#ff7a3d"/>
+      <stop offset="1" stop-color="#ff3d6e" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-50%" width="140%" height="200%">
+      <feGaussianBlur stdDeviation="22"/>
+    </filter>
+    <filter id="soft" x="-20%" y="-50%" width="140%" height="200%">
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+  </defs>
+  <g fill="none" stroke-linecap="round">
+    <g filter="url(#glow)" opacity="0.9">
+      <path d="M40 640 C 260 420, 420 820, 620 600 S 900 380, 990 470" stroke="url(#r1)" stroke-width="90"/>
+      <path d="M40 520 C 240 700, 460 360, 650 520 S 880 720, 990 560" stroke="url(#r2)" stroke-width="70"/>
+    </g>
+    <g filter="url(#soft)">
+      <path d="M40 640 C 260 420, 420 820, 620 600 S 900 380, 990 470" stroke="url(#r1)" stroke-width="26"/>
+      <path d="M40 520 C 240 700, 460 360, 650 520 S 880 720, 990 560" stroke="url(#r2)" stroke-width="18"/>
+      <path d="M60 740 C 300 640, 470 880, 700 720 S 920 640, 980 700" stroke="url(#r3)" stroke-width="12" opacity="0.85"/>
+    </g>
+  </g>
+</svg>

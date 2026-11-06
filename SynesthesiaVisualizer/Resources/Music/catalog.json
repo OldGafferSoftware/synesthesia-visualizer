@@ -1,18 +1,34 @@
 [
   {
+    "file": "grieg-mountain-king.m4a",
+    "title": "In the Hall of the Mountain King",
+    "composer": "Grieg",
+    "performer": "Bassoon, pizzicato and strings, building to brass, piccolo and timpani (sampled instruments)",
+    "licence": "Composition in the public domain (1875); this performance made for this app with the FluidR3 GM soundfont (MIT licence, Frank Wen)",
+    "source": "Tools/make_sampled_music.py"
+  },
+  {
+    "file": "pachelbel-canon.m4a",
+    "title": "Canon in D",
+    "composer": "Pachelbel",
+    "performer": "Cello, harp, strings and three violins in canon (sampled instruments)",
+    "licence": "Composition in the public domain (c. 1700); this performance made for this app with the FluidR3 GM soundfont (MIT licence, Frank Wen)",
+    "source": "Tools/make_canon.py"
+  },
+  {
+    "file": "ode-to-joy.m4a",
+    "title": "Ode to Joy",
+    "composer": "Beethoven",
+    "performer": "Clarinet and strings, then full orchestra (sampled instruments)",
+    "licence": "Composition in the public domain (1824); this performance made for this app with the FluidR3 GM soundfont (MIT licence, Frank Wen)",
+    "source": "Tools/make_sampled_music.py"
+  },
+  {
     "file": "test-twelve-notes.m4a",
     "title": "The twelve notes",
     "composer": "Test piece",
-    "performer": "Synthesized for this app",
-    "licence": "Made for this app; free to use",
-    "source": "Tools/make_test_music.py"
-  },
-  {
-    "file": "ode-to-joy-synth.m4a",
-    "title": "Ode to Joy (simple version)",
-    "composer": "Beethoven",
-    "performer": "Synthesized for this app",
-    "licence": "Composition in the public domain; this performance made for this app",
-    "source": "Tools/make_test_music.py"
+    "performer": "Flute, one note at a time (sampled instrument)",
+    "licence": "Made for this app with the FluidR3 GM soundfont (MIT licence, Frank Wen); free to use",
+    "source": "Tools/make_sampled_music.py"
   }
 ]

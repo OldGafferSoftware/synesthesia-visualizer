@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <filter id="halo" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="18" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <linearGradient id="note" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#ffe9f6"/>
+    </linearGradient>
+  </defs>
+  <g filter="url(#halo)" fill="url(#note)">
+    <!-- An eighth note: head, stem and a flowing flag -->
+    <ellipse cx="440" cy="640" rx="92" ry="66" transform="rotate(-22 440 640)"/>
+    <rect x="510" y="250" width="30" height="400" rx="15"/>
+    <path d="M525 250 C 600 300, 700 330, 690 450 C 684 520, 640 560, 600 590 C 640 530, 650 470, 610 430 C 585 405, 555 395, 525 390 Z"/>
+  </g>
+</svg>
