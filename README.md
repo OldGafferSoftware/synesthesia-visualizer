@@ -12,6 +12,7 @@ This is the **testing prototype**: enough to put in front of people with synesth
 - **Four effects.** Floating orbs (each tied to a note), flowing light (glowing strands that braid like water, one colour per strong note, rising with higher sounds), light-explosion bursts on the beat, and an aurora (shimmering curtains of northern lights).
 - **Note colours.** Choose a colour for each of the 12 notes, with a live readout of which note is sounding.
 - **Effect controls.** Type, placement (in front, all around, above), colour, opacity, size, speed, whether speed follows the music's tempo, what it reacts to, sensitivity.
+- **Help.** A Help screen with a getting-started guide, explanations of each effect and setting, and an FAQ (wording in `Views/HelpPane.swift`).
 - **Splash and Info.** A launch page with copyright, a not-medical-advice notice and a flashing-lights warning; the Info button shows it again with a contact email.
 - **Presets.** Save, reopen and share (as a small JSON file) the full setup, including the music.
 - **Recording.** In-app steps for Vision Pro's built-in Record My View.

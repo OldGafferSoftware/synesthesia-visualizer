@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum Pane: String, CaseIterable, Identifiable {
-    case music, colours, layers, presets
+    case music, colours, layers, presets, help
 
     var id: String { rawValue }
 
@@ -11,6 +11,7 @@ enum Pane: String, CaseIterable, Identifiable {
         case .colours: "Note colours"
         case .layers: "Effects"
         case .presets: "Save and record"
+        case .help: "Help"
         }
     }
 
@@ -20,6 +21,7 @@ enum Pane: String, CaseIterable, Identifiable {
         case .colours: "paintpalette"
         case .layers: "square.3.layers.3d"
         case .presets: "square.and.arrow.down"
+        case .help: "questionmark.circle"
         }
     }
 }
@@ -54,6 +56,7 @@ struct ContentView: View {
                 case .colours: NoteColoursPane()
                 case .layers: LayersPane()
                 case .presets: PresetsPane()
+                case .help: HelpPane()
                 }
             }
         }
