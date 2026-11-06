@@ -156,32 +156,38 @@ struct LayersPane: View {
         List {
             Section {
                 ForEach($model.preset.layers) { $layer in
-                    NavigationLink {
-                        LayerEditor(layer: $layer)
-                    } label: {
-                        HStack(spacing: 14) {
-                            Image(systemName: layer.kind.systemImage)
-                                .font(.title3)
-                                .frame(width: 32)
-                                .foregroundStyle(layer.isVisible ? Color.primary : Color.secondary)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(layer.name).font(.headline)
-                                Text(layer.isVisible ? "On · tap to adjust" : "Off")
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                            }
-                            Spacer()
-                            Toggle("Show \(layer.name)", isOn: $layer.isVisible).labelsHidden()
+                    // The switch sits on the left and "Adjust" is a separate button on the right,
+                    // well apart, so each is easy to hit.
+                    HStack(spacing: 20) {
+                        Toggle("Show \(layer.name)", isOn: $layer.isVisible)
+                            .labelsHidden()
+                        Image(systemName: layer.kind.systemImage)
+                            .font(.title3)
+                            .frame(width: 32)
+                            .foregroundStyle(layer.isVisible ? Color.primary : Color.secondary)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(layer.name).font(.headline)
+                            Text(layer.isVisible ? "On" : "Off")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
                         }
-                        .padding(.vertical, 4)
+                        Spacer(minLength: 32)
+                        NavigationLink {
+                            LayerEditor(layer: $layer)
+                        } label: {
+                            Label("Adjust", systemImage: "slider.horizontal.3")
+                                .padding(.horizontal, 6)
+                        }
+                        .buttonStyle(.bordered)
                     }
+                    .padding(.vertical, 6)
                 }
                 .onDelete { model.preset.layers.remove(atOffsets: $0) }
                 .onMove { model.preset.layers.move(fromOffsets: $0, toOffset: $1) }
             } header: {
                 Text("Switch on the effects you see")
             } footer: {
-                Text("Turn on “Show in my room” and play the music, then tap an effect to adjust it until it matches what you see. Use + to add a second copy of an effect.")
+                Text("Turn on “Show in my room” and play the music. Use the switch to turn an effect on, and Adjust to change it until it matches what you see. Use + to add a second copy of an effect.")
             }
         }
         .navigationTitle("Effects")
