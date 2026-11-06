@@ -149,6 +149,8 @@ struct NoteSwatch: View {
 
 struct LayersPane: View {
     @Environment(AppModel.self) private var model
+    /// The effect being adjusted. A plain button sets this, so rows show no navigation arrow.
+    @State private var editingID: EffectLayer.ID?
 
     var body: some View {
         @Bindable var model = model
@@ -156,8 +158,8 @@ struct LayersPane: View {
         List {
             Section {
                 ForEach($model.preset.layers) { $layer in
-                    // The switch sits on the left and "Adjust" is a separate button on the right,
-                    // well apart, so each is easy to hit.
+                    // Switch, icon and name, then Adjust; + and − sit together at the right edge
+                    // so they line up from row to row whatever the name's length.
                     HStack(spacing: 20) {
                         Toggle("Show \(layer.name)", isOn: $layer.isVisible)
                             .labelsHidden()
@@ -171,6 +173,13 @@ struct LayersPane: View {
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
+                        Button {
+                            editingID = layer.id
+                        } label: {
+                            Label("Adjust", systemImage: "slider.horizontal.3")
+                                .padding(.horizontal, 6)
+                        }
+                        .buttonStyle(.bordered)
                         Spacer(minLength: 32)
                         HStack(spacing: 4) {
                             Button {
@@ -191,13 +200,6 @@ struct LayersPane: View {
                             .accessibilityLabel("Remove \(layer.name)")
                         }
                         .buttonStyle(.borderless)
-                        NavigationLink {
-                            LayerEditor(layer: $layer)
-                        } label: {
-                            Label("Adjust", systemImage: "slider.horizontal.3")
-                                .padding(.horizontal, 6)
-                        }
-                        .buttonStyle(.bordered)
                     }
                     .padding(.vertical, 6)
                 }
@@ -210,6 +212,11 @@ struct LayersPane: View {
             }
         }
         .navigationTitle("Effects")
+        .navigationDestination(item: $editingID) { id in
+            if let index = model.preset.layers.firstIndex(where: { $0.id == id }) {
+                LayerEditor(layer: $model.preset.layers[index])
+            }
+        }
         .toolbar {
             Menu {
                 ForEach(EffectKind.allCases) { kind in
