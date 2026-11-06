@@ -215,9 +215,7 @@ struct LayersPane: View {
         }
         .navigationTitle("Effects")
         .navigationDestination(item: $editingID) { id in
-            if let index = model.preset.layers.firstIndex(where: { $0.id == id }) {
-                LayerEditor(layer: $model.preset.layers[index])
-            }
+            LayerEditorScreen(layerID: id)
         }
         .toolbar {
             Menu {
@@ -245,6 +243,22 @@ struct TempoReadout: View {
     }
 }
 
+/// Looks up the layer in the app model itself, so the editor redraws whenever that layer changes.
+/// (Passing a binding through `navigationDestination` left the editor showing stale values.)
+struct LayerEditorScreen: View {
+    @Environment(AppModel.self) private var model
+    let layerID: EffectLayer.ID
+
+    var body: some View {
+        @Bindable var model = model
+        if let index = model.preset.layers.firstIndex(where: { $0.id == layerID }) {
+            LayerEditor(layer: $model.preset.layers[index])
+        } else {
+            ContentUnavailableView("This effect has been removed", systemImage: "trash")
+        }
+    }
+}
+
 struct LayerEditor: View {
     @Binding var layer: EffectLayer
 
@@ -252,9 +266,6 @@ struct LayerEditor: View {
         Form {
             Section("Effect") {
                 TextField("Name", text: $layer.name)
-                Picker("Type", selection: $layer.kind) {
-                    ForEach(EffectKind.allCases) { Text($0.label).tag($0) }
-                }
                 Picker("Where", selection: $layer.placement) {
                     ForEach(Placement.allCases) { Text($0.label).tag($0) }
                 }
