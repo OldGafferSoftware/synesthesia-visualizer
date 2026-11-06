@@ -70,7 +70,8 @@ final class AppModel {
             name = "\(kind.label) \(number)"
             number += 1
         }
-        let layer = EffectLayer(name: name, kind: kind)
+        var layer = EffectLayer(name: name, kind: kind)
+        layer.isVisible = false  // new copies start switched off
 
         let anchor = sourceID.flatMap { id in preset.layers.firstIndex { $0.id == id } }
             ?? preset.layers.lastIndex { $0.kind == kind }
