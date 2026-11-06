@@ -158,7 +158,7 @@ struct LayersPane: View {
         List {
             Section {
                 ForEach($model.preset.layers) { $layer in
-                    // Switch, icon and name, then Adjust; + and − sit together at the right edge
+                    // Switch, icon and name, then the ••• (adjust) button; + and − sit together at the right edge
                     // so they line up from row to row whatever the name's length.
                     HStack(spacing: 20) {
                         Toggle("Show \(layer.name)", isOn: $layer.isVisible)
@@ -176,10 +176,12 @@ struct LayersPane: View {
                         Button {
                             editingID = layer.id
                         } label: {
-                            Label("Adjust", systemImage: "slider.horizontal.3")
-                                .padding(.horizontal, 6)
+                            Image(systemName: "ellipsis")
+                                .frame(width: 44, height: 44)
                         }
                         .buttonStyle(.bordered)
+                        .buttonBorderShape(.circle)
+                        .accessibilityLabel("Adjust \(layer.name)")
                         Spacer(minLength: 32)
                         HStack(spacing: 4) {
                             Button {
@@ -208,7 +210,7 @@ struct LayersPane: View {
             } header: {
                 Text("Switch on the effects you see")
             } footer: {
-                Text("Turn on “Show in my room” and play the music. Use the switch to turn an effect on, and Adjust to change it until it matches what you see. Use + on a row to add another copy just below it, and − to remove that row. The + at the top right adds back an effect you've removed.")
+                Text("Turn on “Show in my room” and play the music. Use the switch to turn an effect on, and the ••• button to change it until it matches what you see. Use + on a row to add another copy just below it, and − to remove that row. The + at the top right adds back an effect you've removed.")
             }
         }
         .navigationTitle("Effects")
