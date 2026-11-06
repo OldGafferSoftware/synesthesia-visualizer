@@ -82,7 +82,7 @@ enum HelpContent {
         Step(title: "Set your note colours",
              body: "Open Note colours. Tap a note to hear it held, choose the colour you see for it, then tap again to stop."),
         Step(title: "Shape the effects",
-             body: "Open Effects. Every effect starts switched off. Switch on the kinds of light you see, then tap the ••• button on each one to change its colour, size, speed, placement and how it reacts to the music. You can layer the same effect more than once: if you see both small and very large orbs, for example, set up one style, then tap + on its row to add a second copy just below it and give it a different size. Tap − to remove a row."),
+             body: "Open Effects. Every effect starts switched off. Switch on the kinds of light you see, then tap the ••• button on each one to change its colour, size, speed, placement and how it reacts to the music. You can add more than one of a given effect to create “layering”. For example, you may see both large, very transparent orbs and very small, bright ones. Set the first orb effect as large and transparent, then tap “+” to add a second orb effect. If you remove all of a given effect and later want to add one back, tap “+” at the top right."),
         Step(title: "Save and record",
              body: "Open Save and record. Tap Save…, confirm or edit the name, then follow the steps there to record what you see with Record My View."),
     ]
